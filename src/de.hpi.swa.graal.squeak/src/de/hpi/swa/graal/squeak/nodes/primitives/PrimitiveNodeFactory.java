@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.hpi.swa.graal.squeak.nodes.plugins.*;
 import org.graalvm.collections.EconomicMap;
 import org.graalvm.collections.UnmodifiableEconomicMap;
 
@@ -24,32 +25,6 @@ import de.hpi.swa.graal.squeak.model.NativeObject;
 import de.hpi.swa.graal.squeak.model.NilObject;
 import de.hpi.swa.graal.squeak.nodes.context.ArgumentNodes.AbstractArgumentNode;
 import de.hpi.swa.graal.squeak.nodes.context.ArgumentNodes.ArgumentNode;
-import de.hpi.swa.graal.squeak.nodes.plugins.B2DPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.BMPReadWriterPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.BitBltPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.ClipboardExtendedPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.CroquetPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.DSAPrims;
-import de.hpi.swa.graal.squeak.nodes.plugins.DropPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.FilePlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.FloatArrayPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.GraalSqueakPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.HostWindowPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.JPEGReaderPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.LargeIntegers;
-import de.hpi.swa.graal.squeak.nodes.plugins.LocalePlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.Matrix2x3Plugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.MiscPrimitivePlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.NullPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.PolyglotPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.SecurityPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.SoundCodecPrims;
-import de.hpi.swa.graal.squeak.nodes.plugins.SqueakFFIPrims;
-import de.hpi.swa.graal.squeak.nodes.plugins.SqueakSSL;
-import de.hpi.swa.graal.squeak.nodes.plugins.UUIDPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.UnixOSProcessPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.Win32OSProcessPlugin;
-import de.hpi.swa.graal.squeak.nodes.plugins.ZipPlugin;
 import de.hpi.swa.graal.squeak.nodes.plugins.network.SocketPlugin;
 import de.hpi.swa.graal.squeak.nodes.primitives.impl.ArithmeticPrimitives;
 import de.hpi.swa.graal.squeak.nodes.primitives.impl.ArrayStreamPrimitives;
@@ -98,6 +73,7 @@ public final class PrimitiveNodeFactory {
                         new FilePlugin(),
                         new FloatArrayPlugin(),
                         new GraalSqueakPlugin(),
+                        new JitInteractionPlugin(),
                         new HostWindowPlugin(),
                         new JPEGReaderPlugin(),
                         new LargeIntegers(),
