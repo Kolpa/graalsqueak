@@ -49,32 +49,7 @@ public final class GraalSqueakPlugin extends AbstractPrimitiveFactoryHolder {
 
         @Specialization
         protected Object getJitInfo(final Object receiver, final CompiledMethodObject value) {
-            try {
-                ClassLoader loader = value.getCallTarget().getClass().getClassLoader();
-
-                Class<?> optimizedCallTarget = Class.forName(
-                        "org.graalvm.compiler.truffle.runtime.OptimizedCallTarget",
-                        true,
-                        loader
-                );
-
-                Class<?> optimizedCompilationProfile = Class.forName(
-                        "org.graalvm.compiler.truffle.runtime.OptimizedCompilationProfile",
-                        true,
-                        loader
-                );
-
-                Method getCompilationProfile = optimizedCallTarget.getDeclaredMethod("getCompilationProfile");
-                Method getCallCount = optimizedCompilationProfile.getDeclaredMethod("getCallCount");
-
-                Object optimizedCompilationProfileInstance = getCompilationProfile.invoke(value.getCallTarget());
-
-                Integer callCount = (Integer) getCallCount.invoke(optimizedCompilationProfileInstance);
-
-                return callCount;
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
-                return SqueakExceptions.SqueakException.create("Failed to create JitInfoObject", e);
-            }
+            return method.image.env.asGuestValue(value.getCallTarget());
         }
     }
 }
