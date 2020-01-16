@@ -3,6 +3,7 @@ package de.hpi.swa.graal.squeak.nodes.plugins;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.instrumentation.*;
 import com.oracle.truffle.api.instrumentation.TruffleInstrument.Registration;
+import de.hpi.swa.graal.squeak.model.AbstractSqueakObjectWithClassAndHash;
 import de.hpi.swa.graal.squeak.model.CompiledMethodObject;
 
 import java.util.*;
@@ -33,6 +34,7 @@ public class ReturnAndCallTypeInstrument extends TruffleInstrument implements Ad
     public void addListenerForMethodCall(CompiledMethodObject target) {
         SourceSectionFilter filter = SourceSectionFilter
                 .newBuilder()
+                //.rootNameIs(name -> name.equals(target.getCallTarget().getRootNode().getName()))
                 .sourceIs(target.getSource())
                 .lineIs(1)
                 .build();
@@ -44,7 +46,13 @@ public class ReturnAndCallTypeInstrument extends TruffleInstrument implements Ad
                 String[] argumentNames = Arrays.stream(frame.getArguments())
                         .skip(4)
                         .filter(Objects::nonNull)
-                        .map(Object::toString)
+                        .map(arg -> {
+                            if (arg instanceof AbstractSqueakObjectWithClassAndHash) {
+                                return arg.toString();
+                            } else {
+                                return arg.getClass().toString();
+                            }
+                        })
                         .toArray(String[]::new);
                 methodCache.get(target).addArguments(argumentNames);
             }

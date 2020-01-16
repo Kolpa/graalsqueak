@@ -3,24 +3,28 @@ package de.hpi.swa.graal.squeak.nodes.plugins;
 import java.util.*;
 
 public class ArgumentAndReturnValues {
-    private Set<String> arguments;
+    private List<List<String>> arguments;
     private Set<String> returnValues;
 
     public ArgumentAndReturnValues() {
-        this.arguments = new HashSet<>();
+        this.arguments = new ArrayList<>();
         this.returnValues = new HashSet<>();
     }
 
-    public List<String> getArguments() {
-        return new ArrayList<>(this.arguments);
-    }
-
-    public void addArgument(String argument) {
-        this.arguments.add(argument);
+    public List<List<String>> getArguments() {
+        return this.arguments;
     }
 
     public void addArguments(String[] arguments) {
-        this.arguments.addAll(Arrays.asList(arguments));
+        for (int i = 0; i < arguments.length; i++) {
+            if (this.arguments.size() - 1 != i) {
+                this.arguments.add(new ArrayList<>());
+            }
+            List<String> argument = this.arguments.get(i);
+            if (!argument.contains(arguments[i])) {
+                argument.add(arguments[i]);
+            }
+        }
     }
 
     public List<String> getReturnValues() {
