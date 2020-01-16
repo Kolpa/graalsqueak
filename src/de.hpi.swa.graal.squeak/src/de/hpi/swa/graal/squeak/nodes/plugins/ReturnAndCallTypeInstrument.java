@@ -41,13 +41,17 @@ public class ReturnAndCallTypeInstrument extends TruffleInstrument implements Ad
             @Override
             public void onEnter(EventContext context, VirtualFrame frame) {
                 methodCache.putIfAbsent(target, new ArgumentAndReturnValues());
-                methodCache.get(target).addArguments(frame.getArguments());
+                String[] argumentNames = Arrays.stream(frame.getArguments())
+                        .skip(4)
+                        .filter(Objects::nonNull)
+                        .map(Object::toString)
+                        .toArray(String[]::new);
+                methodCache.get(target).addArguments(argumentNames);
             }
 
             @Override
             public void onReturnValue(EventContext context, VirtualFrame frame, Object result) {
-                methodCache.putIfAbsent(target, new ArgumentAndReturnValues());
-                methodCache.get(target).addReturnValue(result);
+                //Do nothing
             }
 
             @Override
