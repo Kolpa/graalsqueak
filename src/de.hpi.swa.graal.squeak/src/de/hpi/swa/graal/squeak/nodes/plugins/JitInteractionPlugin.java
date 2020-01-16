@@ -13,11 +13,15 @@ import de.hpi.swa.graal.squeak.exceptions.PrimitiveExceptions.PrimitiveFailed;
 import de.hpi.swa.graal.squeak.model.CompiledMethodObject;
 import de.hpi.swa.graal.squeak.nodes.primitives.AbstractPrimitiveFactoryHolder;
 import de.hpi.swa.graal.squeak.nodes.primitives.AbstractPrimitiveNode;
+import de.hpi.swa.graal.squeak.nodes.primitives.PrimitiveInterfaces.UnaryPrimitiveWithoutFallback;
 import de.hpi.swa.graal.squeak.nodes.primitives.PrimitiveInterfaces.BinaryPrimitive;
 import de.hpi.swa.graal.squeak.nodes.primitives.SqueakPrimitive;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Instrument;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 
 public final class JitInteractionPlugin extends AbstractPrimitiveFactoryHolder {
 
@@ -69,6 +73,66 @@ public final class JitInteractionPlugin extends AbstractPrimitiveFactoryHolder {
             } catch (ReflectiveOperationException e) {
                 throw PrimitiveFailed.GENERIC_ERROR;
             }
+        }
+    }
+
+    @GenerateNodeFactory
+    @SqueakPrimitive(names = "addListenerForMethodCall")
+    protected abstract static class AddListenerForMethodCallNode extends AbstractPrimitiveNode implements BinaryPrimitive {
+        protected AddListenerForMethodCallNode(final CompiledMethodObject method) {
+            super(method);
+        }
+
+        @Specialization
+        protected Object addListenerForMethodCall(final Object receiver, final CompiledMethodObject value) {
+            Map<String, Instrument> instruments = Context.getCurrent().getEngine().getInstruments();
+
+            AddCallTypeListenerService service = instruments
+                    .get(ReturnAndCallTypeInstrument.ID)
+                    .lookup(AddCallTypeListenerService.class);
+
+            service.addListenerForMethodCall(value);
+            return true;
+        }
+    }
+
+    @GenerateNodeFactory
+    @SqueakPrimitive(names = "getArgumentsForMethod")
+    protected abstract static class GetArgumentsForMethodNode extends AbstractPrimitiveNode implements BinaryPrimitive {
+        protected GetArgumentsForMethodNode(final CompiledMethodObject method) {
+            super(method);
+        }
+
+        @Specialization
+        protected Object getArgumentsForMethod(final Object receiver, final CompiledMethodObject value) {
+            Map<String, Instrument> instruments = Context.getCurrent().getEngine().getInstruments();
+
+            AddCallTypeListenerService service = instruments
+                    .get(ReturnAndCallTypeInstrument.ID)
+                    .lookup(AddCallTypeListenerService.class);
+
+            return method.image.env.asGuestValue(service.getArgumentsForMethod(value));
+        }
+    }
+
+    @GenerateNodeFactory
+    @SqueakPrimitive(names = "clearMethodCallListeners")
+    protected abstract static class ClearMethodCallListenersNode extends AbstractPrimitiveNode implements UnaryPrimitiveWithoutFallback {
+        protected ClearMethodCallListenersNode(final CompiledMethodObject method) {
+            super(method);
+        }
+
+        @Specialization
+        protected Object clearMethodCallListeners(final Object receiver) {
+            Map<String, Instrument> instruments = Context.getCurrent().getEngine().getInstruments();
+
+            AddCallTypeListenerService service = instruments
+                    .get(ReturnAndCallTypeInstrument.ID)
+                    .lookup(AddCallTypeListenerService.class);
+
+            service.clearListeners();
+
+            return true;
         }
     }
 }
