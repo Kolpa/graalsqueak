@@ -20,6 +20,8 @@ import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Instrument;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -133,6 +135,33 @@ public final class JitInteractionPlugin extends AbstractPrimitiveFactoryHolder {
             service.clearListeners();
 
             return true;
+        }
+    }
+
+    @GenerateNodeFactory
+    @SqueakPrimitive(names = "getJavaArgumentsForMethod")
+    protected abstract static class GetJavaArgumentsForMethodNode extends AbstractPrimitiveNode implements BinaryPrimitive {
+        protected GetJavaArgumentsForMethodNode(final CompiledMethodObject method) {
+            super(method);
+        }
+
+        @Specialization
+        protected Object getJavaArgumentsForMethod(final Object receiver, final CompiledMethodObject value) {
+            CallTarget callTarget = value.getCallTarget();
+
+            try {
+                Class<?> optimizedCallTargetClass = Class.forName(
+                        "org.graalvm.compiler.truffle.runtime.OptimizedCallTarget",
+                        false,
+                        callTarget.getClass().getClassLoader()
+                );
+
+                Method getProfiledArgumentTypesMethod = optimizedCallTargetClass.getDeclaredMethod("getProfiledArgumentTypes");
+                getProfiledArgumentTypesMethod.setAccessible(true);
+                return method.image.env.asGuestValue(getProfiledArgumentTypesMethod.invoke(value.getCallTarget()));
+            } catch (ReflectiveOperationException e) {
+                throw PrimitiveFailed.GENERIC_ERROR;
+            }
         }
     }
 }
