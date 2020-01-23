@@ -5,6 +5,7 @@ import com.oracle.truffle.api.instrumentation.*;
 import com.oracle.truffle.api.instrumentation.TruffleInstrument.Registration;
 import de.hpi.swa.graal.squeak.model.AbstractSqueakObjectWithClassAndHash;
 import de.hpi.swa.graal.squeak.model.CompiledMethodObject;
+import de.hpi.swa.graal.squeak.nodes.accessing.SqueakObjectClassNode;
 
 import java.util.*;
 
@@ -46,13 +47,7 @@ public class ReturnAndCallTypeInstrument extends TruffleInstrument implements Ad
                 String[] argumentNames = Arrays.stream(frame.getArguments())
                         .skip(4)
                         .filter(Objects::nonNull)
-                        .map(arg -> {
-                            if (arg instanceof AbstractSqueakObjectWithClassAndHash) {
-                                return arg.toString();
-                            } else {
-                                return arg.getClass().toString();
-                            }
-                        })
+                        .map(arg -> SqueakObjectClassNode.getUncached().executeLookup(arg).getClassName())
                         .toArray(String[]::new);
                 methodCache.get(target).addArguments(argumentNames);
             }
