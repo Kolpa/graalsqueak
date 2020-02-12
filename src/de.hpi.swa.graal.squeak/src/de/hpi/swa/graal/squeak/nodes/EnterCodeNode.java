@@ -16,7 +16,7 @@ import de.hpi.swa.graal.squeak.model.CompiledCodeObject;
 
 @NodeInfo(cost = NodeCost.NONE)
 public final class EnterCodeNode extends RootNode {
-    private final CompiledCodeObject code;
+    protected final CompiledCodeObject code;
 
     @Child private ExecuteContextNode executeContextNode;
 
@@ -53,5 +53,9 @@ public final class EnterCodeNode extends RootNode {
     @Override
     public boolean isCloningAllowed() {
         return true;
+    }
+
+    public CompiledCodeObject getCodeObject() {
+        return code;
     }
 }
